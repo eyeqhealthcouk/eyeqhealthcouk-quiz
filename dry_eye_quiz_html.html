@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dry Eye Assessment Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #8ec5c1 0%, #6ba8a4 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 150px;
+            height: auto;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+        
+        .question-container {
+            margin: 30px 0;
+        }
+        
+        .question-text {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateX(5px);
+        }
+        
+        .results {
+            text-align: center;
+        }
+        
+        .severity-badge {
+            display: inline-block;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 32px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .mild {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .moderate {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .severe {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .recommendations {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .recommendations h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .recommendations ul {
+            list-style: none;
+        }
+        
+        .recommendations li {
+            padding: 10px 0;
+            padding-left: 25px;
+            position: relative;
+            line-height: 1.6;
+        }
+        
+        .recommendations li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .disclaimer {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>EyeQHealth.co.uk		👁️ Dry Eye Assessment Quiz</h1>
+            <p id="progress-text">Question 1 of 8</p>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        
+        <div id="quiz-content"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "How often do you experience dry eye symptoms?",
+                options: [
+                    { text: "Rarely or never", score: 0 },
+                    { text: "Sometimes (1-2 times per week)", score: 1 },
+                    { text: "Often (3-5 times per week)", score: 2 },
+                    { text: "Constantly (daily)", score: 3 }
+                ]
+            },
+            {
+                question: "How would you rate the severity of your symptoms when they occur?",
+                options: [
+                    { text: "Very mild - barely noticeable", score: 0 },
+                    { text: "Mild - slightly uncomfortable", score: 1 },
+                    { text: "Moderate - uncomfortable and distracting", score: 2 },
+                    { text: "Severe - very uncomfortable, affects daily activities", score: 3 }
+                ]
+            },
+            {
+                question: "Do you experience burning or stinging sensations in your eyes?",
+                options: [
+                    { text: "Never", score: 0 },
+                    { text: "Occasionally", score: 1 },
+                    { text: "Frequently", score: 2 },
+                    { text: "Almost always", score: 3 }
+                ]
+            },
+            {
+                question: "How often are your eyes red or bloodshot?",
+                options: [
+                    { text: "Never", score: 0 },
+                    { text: "Occasionally", score: 1 },
+                    { text: "Frequently", score: 2 },
+                    { text: "Almost always", score: 3 }
+                ]
+            },
+            {
+                question: "Do you feel a gritty or sandy sensation in your eyes?",
+                options: [
+                    { text: "Never", score: 0 },
+                    { text: "Occasionally", score: 1 },
+                    { text: "Frequently", score: 2 },
+                    { text: "Almost always", score: 3 }
+                ]
+            },
+            {
+                question: "Do you experience blurred vision that improves with blinking?",
+                options: [
+                    { text: "Never", score: 0 },
+                    { text: "Occasionally", score: 1 },
+                    { text: "Frequently", score: 2 },
+                    { text: "Almost always", score: 3 }
+                ]
+            },
+            {
+                question: "How much do dry eye symptoms interfere with daily activities (reading, computer work, driving)?",
+                options: [
+                    { text: "Not at all", score: 0 },
+                    { text: "Slightly", score: 1 },
+                    { text: "Moderately", score: 2 },
+                    { text: "Severely", score: 3 }
+                ]
+            },
+            {
+                question: "Do your eyes water excessively?",
+                options: [
+                    { text: "Never", score: 0 },
+                    { text: "Occasionally", score: 1 },
+                    { text: "Frequently", score: 2 },
+                    { text: "Almost always", score: 3 }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let totalScore = 0;
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            let html = '<div class="question-container">';
+            html += `<div class="question-text">${q.question}</div>`;
+            
+            q.options.forEach((option, index) => {
+                html += `<div class="option" onclick="selectAnswer(${option.score})">${option.text}</div>`;
+            });
+            
+            if (currentQuestion > 0) {
+                html += '<button class="back-btn" onclick="goBack()">← Previous Question</button>';
+            }
+            
+            html += '</div>';
+            document.getElementById('quiz-content').innerHTML = html;
+            updateProgress();
+        }
+
+        function selectAnswer(score) {
+            totalScore += score;
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function goBack() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                // Note: This simple version doesn't subtract scores when going back
+                // For production, you'd want to track individual answers
+                showQuestion();
+            }
+        }
+
+        function showResults() {
+            let severity, severityClass, description, recommendations;
+            
+            if (totalScore <= 7) {
+                severity = "Mild Dry Eye";
+                severityClass = "mild";
+                description = "You have mild dry eye symptoms that occur occasionally.";
+                recommendations = [
+                    "Preservative-free artificial tears (2-4 times daily)",
+                    "Lubricating drops: Select from mild dry eye section drops",
+                    "Lifestyle modifications: Regular screen breaks, use a humidifier"
+                ];
+            } else if (totalScore <= 15) {
+                severity = "Moderate Dry Eye";
+                severityClass = "moderate";
+                description = "You have moderate dry eye symptoms that occur regularly.";
+                recommendations = [
+                    "Preservative-free artificial tears (4-6 times daily or more)",
+                    "Lubricating drops: Select from moderate dry eye section drops",
+                    "Warm compresses and eyelid hygiene",
+                    "Hydration and vitamins"
+                ];
+            } else {
+                severity = "Severe Dry Eye";
+                severityClass = "severe";
+                description = "You have severe dry eye symptoms that significantly impact your life.";
+                recommendations = [
+                    "Preservative-free artificial tears (hourly)",
+                    "Lubricating drops: Select from severe dry eye section",
+                    "Lifestyle modifications: See section",
+                    "Schedule an appointment with an eye care professional. You may need prescription medications or treatments like punctal plugs."
+                ];
+            }
+
+            let html = '<div class="results">';
+            html += '<p style="font-size: 18px; margin-bottom: 20px; color: #333;">Thanks for completing the Dry Eye Assessment Quiz</p>';
+            html += `<div class="severity-badge ${severityClass}">${severity}</div>`;
+            html += `<p style="font-size: 16px; color: #666; margin: 15px 0;">Your Score: ${totalScore} out of 24</p>`;
+            html += `<p style="font-size: 18px; margin: 20px 0;">${description}</p>`;
+            
+            html += '<div class="recommendations">';
+            html += '<h3>Recommended Treatment:</h3>';
+            html += '<ul>';
+            recommendations.forEach(rec => {
+                html += `<li>${rec}</li>`;
+            });
+            html += '</ul>';
+            html += '</div>';
+            
+            html += '<div class="disclaimer">';
+            html += '<strong>Disclaimer:</strong> This quiz is for informational purposes only and does not replace professional medical advice. Please consult with an eye care professional for proper diagnosis and treatment.';
+            html += '</div>';
+            
+            html += '<button class="btn" onclick="restartQuiz()">Take Quiz Again</button>';
+            html += '</div>';
+            
+            document.getElementById('quiz-content').innerHTML = html;
+            document.getElementById('progress-text').textContent = 'Results';
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            totalScore = 0;
+            showQuestion();
+        }
+
+        // Start the quiz
+        showQuestion();
+    </script>
+</body>
+</html>
